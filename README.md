@@ -1,39 +1,85 @@
-# bio-seq-py
-# BioSeqAnalyzer - Basic Sequence Analysis Tool
-BioSeqAnalyzer: Python tool for bioinformatics. Analyze DNA/RNA/protein sequences. Stats, transcription, translation, motifs, reverse complement.
+import re
+from Bio.Seq import Seq
+from Bio.SeqUtils import molecular_weight
 
-## Features
+def calculate_statistics(sequence):
+    length = len(sequence)
+    gc_content = (sequence.count("G") + sequence.count("C")) / length * 100
+    at_content = (sequence.count("A") + sequence.count("T")) / length * 100
+    weight = molecular_weight(Seq(sequence))
+    return length, gc_content, at_content, weight
 
-- Calculate sequence length, GC content, AT content, and molecular weight.
-- Transcribe DNA sequences to RNA.
-- Translate DNA or RNA sequences to protein.
-- Search for motifs within sequences.
-- Generate reverse complements of DNA sequences.
-- Batch processing of multiple sequences.
-- Export analysis results to text files.
+def transcription(dna_sequence):
+    return dna_sequence.replace("T", "U")
 
-## Requirements
+def translation(rna_sequence, reading_frame=0):
+    rna_seq = Seq(rna_sequence)
+    protein_seq = rna_seq[reading_frame:].translate()
+    return str(protein_seq)
 
-- Python 3.x
-- Biopython library (install using `pip install biopython`)
+def motif_search(sequence, motif):
+    matches = [match.start() for match in re.finditer(motif, sequence)]
+    return matches
 
-## Usage
+def reverse_complement(dna_sequence):
+    return str(Seq(dna_sequence).reverse_complement())
 
-1. Clone the repository:
-2. git clone https://github.com/amenbatool/BioSeqAnalyzer.git
-cd BioSeqAnalyzer
-2. Run the script: python bioseq_analyzer.py
-3. Follow the on-screen menu to perform sequence analysis.
+if __name__ == "__main__":
+    sequence = input("Enter a DNA/RNA/Protein sequence: ")
 
-## Contributing
+    while True:
+        print("\nChoose an option:")
+        print("1. Calculate basic statistics")
+        print("2. Transcription")
+        print("3. Translation")
+        print("4. Motif search")
+        print("5. Reverse complement")
+        print("6. Exit")
 
-Contributions are welcome! If you have suggestions for improvements, bug fixes, or new features, feel free to submit a pull request.
+        choice = input("Enter your choice: ")
 
+        if choice == "1":
+            length, gc_content, at_content, weight = calculate_statistics(sequence)
+            print(f"Sequence Length: {length}")
+            print(f"GC Content: {gc_content:.2f}%")
+            print(f"AT Content: {at_content:.2f}%")
+            print(f"Molecular Weight: {weight:.2f} g/mol")
 
-## Acknowledgements
+        elif choice == "2":
+            if "T" in sequence:  # Assuming DNA sequence
+                rna_seq = transcription(sequence)
+                print(f"Transcribed RNA Sequence: {rna_seq}")
+            else:
+                print("Input sequence is not DNA.")
 
-- This tool was inspired by the need for a simple and easy-to-use sequence analysis tool for educational and personal purposes.
+        elif choice == "3":
+            if "U" in sequence:  # Assuming RNA sequence
+                reading_frame = int(input("Enter reading frame (0, 1, or 2): "))
+                protein_seq = translation(sequence, reading_frame)
+                print(f"Translated Protein Sequence: {protein_seq}")
+            else:
+                print("Input sequence is not RNA.")
 
-2. 
-3. 
+        elif choice == "4":
+            motif = input("Enter motif to search: ")
+            matches = motif_search(sequence, motif)
+            if matches:
+                print(f"Motif '{motif}' found at positions: {', '.join(map(str, matches))}")
+            else:
+                print(f"Motif '{motif}' not found in the sequence.")
+
+        elif choice == "5":
+            if "T" in sequence:  # Assuming DNA sequence
+                rev_comp = reverse_complement(sequence)
+                print(f"Reverse Complement Sequence: {rev_comp}")
+            else:
+                print("Input sequence is not DNA.")
+
+        elif choice == "6":
+            print("Exiting the program.")
+            break
+
+        else:
+            print("Invalid choice. Please enter a valid option.")
+
    
